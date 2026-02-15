@@ -1,4 +1,4 @@
-import { Search, ShoppingBag, Check, X, Calendar, Heart, Play } from 'lucide-react';
+import { Search, ShoppingBag, Check, X, Calendar, Heart, Play, Star } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { SKILLS_DATA, type Skill } from '../../data/skillsData';
 import { SkillModal } from '../common/SkillModal';
@@ -6,6 +6,7 @@ import { storageUtils } from '../../utils/storage';
 import { cn } from '../../utils/cn';
 import { toast } from 'sonner';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useVersionMode } from '../../contexts/VersionModeContext';
 
 interface SkillsGridProps {
   searchQuery: string;
@@ -17,6 +18,20 @@ interface SkillsGridProps {
   onRunSkill: (skill: Skill) => void;
 }
 
+const getCategoryColor = (category: string) => {
+  const colors: Record<string, { bg: string; text: string; border: string; solid: string }> = {
+    Development: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20', solid: 'bg-blue-500' },
+    Design: { bg: 'bg-pink-500/10', text: 'text-pink-400', border: 'border-pink-500/20', solid: 'bg-pink-500' },
+    Marketing: { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/20', solid: 'bg-orange-500' },
+    Productivity: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20', solid: 'bg-emerald-500' },
+    Tools: { bg: 'bg-violet-500/10', text: 'text-violet-400', border: 'border-violet-500/20', solid: 'bg-violet-500' },
+    Research: { bg: 'bg-cyan-500/10', text: 'text-cyan-400', border: 'border-cyan-500/20', solid: 'bg-cyan-500' },
+    Mobile: { bg: 'bg-lime-500/10', text: 'text-lime-400', border: 'border-lime-500/20', solid: 'bg-lime-500' },
+    Writing: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', border: 'border-yellow-500/20', solid: 'bg-yellow-500' },
+  };
+  return colors[category] || { bg: 'bg-gray-500/10', text: 'text-gray-400', border: 'border-gray-500/20', solid: 'bg-gray-500' };
+};
+
 export function SkillsGrid({
   searchQuery,
   setSearchQuery,
@@ -27,6 +42,7 @@ export function SkillsGrid({
   onRunSkill,
 }: SkillsGridProps) {
   const { t } = useLanguage();
+  const { mode } = useVersionMode();
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   // Use lazy initializer to load liked skills from storage
   const [likedSkills, setLikedSkills] = useState<Set<string>>(() => new Set(storageUtils.getLikes()));
@@ -165,7 +181,7 @@ export function SkillsGrid({
             </div>
           </div>
 
-          {/* Grid - SkillsMP Style */}
+          {/* Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSkills.slice(0, actualVisibleCount).map((skill) => (
               <div
@@ -177,128 +193,214 @@ export function SkillsGrid({
                   'transition-all duration-300 flex flex-col h-full overflow-hidden cursor-pointer'
                 )}
               >
-                {/* Top Bar (Traffic Lights + Filename) */}
-                <div
-                  className={cn(
-                    'h-10 px-4 border-b border-border flex items-center bg-muted/30 relative',
-                    'group-hover:bg-muted/50 transition-colors'
-                  )}
-                >
-                  <div className="flex items-center gap-1.5 absolute left-4">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
-                  </div>
-                  <div className="mx-auto text-xs font-mono text-muted-foreground font-medium">
-                    {skill.id}.ts
-                  </div>
-                </div>
-
-                {/* Code Content */}
-                <div className="p-5 flex-1 font-mono text-sm leading-relaxed relative">
-                  {/* Line Numbers */}
-                  <div className="absolute left-4 top-5 bottom-5 w-6 text-right text-muted-foreground/40 select-none text-xs flex flex-col gap-1">
-                    <span>1</span>
-                    <span>2</span>
-                    <span>3</span>
-                    <span>4</span>
-                  </div>
-
-                  {/* Syntax Highlighted Text */}
-                  <div className="pl-10">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-syntax-keyword font-bold">export</span>
-                      <span className="text-syntax-variable font-bold">
-                        {skill.name.replace(/\s+/g, '')}
-                      </span>
+                {/* === Dev Mode: Code-style card === */}
+                <div className={cn(
+                  'transition-all duration-400',
+                  mode === 'dev' ? 'opacity-100 max-h-[500px]' : 'opacity-0 max-h-0 overflow-hidden'
+                )}>
+                  {/* Top Bar (Traffic Lights + Filename) */}
+                  <div
+                    className={cn(
+                      'h-10 px-4 border-b border-border flex items-center bg-muted/30 relative',
+                      'group-hover:bg-muted/50 transition-colors'
+                    )}
+                  >
+                    <div className="flex items-center gap-1.5 absolute left-4">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                     </div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-syntax-keyword">from</span>
-                      <span className="text-syntax-string text-xs truncate">
-                        "{skill.installCommand.split(' ').pop()}"
-                      </span>
-                    </div>
-
-                    {/* Description as Comment */}
-                    <div className="text-muted-foreground italic text-xs leading-5 border-l-2 border-border pl-3 py-1">
-                      /** <br />
-                      &nbsp;* {skill.description} <br />
-                      &nbsp;*/
+                    <div className="mx-auto text-xs font-mono text-muted-foreground font-medium">
+                      {skill.id}.ts
                     </div>
                   </div>
-                </div>
 
-                {/* Footer Status Bar */}
-                <div
-                  className={cn(
-                    'h-10 px-4 border-t border-border bg-muted/20 flex items-center justify-between text-xs font-mono text-muted-foreground',
-                    'group-hover:bg-muted/30 transition-colors'
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-3 h-3" />
-                    <span>{t('skills.updatedToday')}</span>
+                  {/* Code Content */}
+                  <div className="p-5 flex-1 font-mono text-sm leading-relaxed relative">
+                    {/* Line Numbers */}
+                    <div className="absolute left-4 top-5 bottom-5 w-6 text-right text-muted-foreground/40 select-none text-xs flex flex-col gap-1">
+                      <span>1</span>
+                      <span>2</span>
+                      <span>3</span>
+                      <span>4</span>
+                    </div>
+
+                    {/* Syntax Highlighted Text */}
+                    <div className="pl-10">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-syntax-keyword font-bold">export</span>
+                        <span className="text-syntax-variable font-bold">
+                          {skill.name.replace(/\s+/g, '')}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-syntax-keyword">from</span>
+                        <span className="text-syntax-string text-xs truncate">
+                          "{skill.installCommand.split(' ').pop()}"
+                        </span>
+                      </div>
+
+                      {/* Description as Comment */}
+                      <div className="text-muted-foreground italic text-xs leading-5 border-l-2 border-border pl-3 py-1">
+                        /** <br />
+                        &nbsp;* {skill.description} <br />
+                        &nbsp;*/
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    {/* Run Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRunSkill(skill);
-                      }}
-                      className="p-2 rounded-md hover:text-green-600 hover:bg-green-500/10 transition-all duration-200 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500/30"
-                      title="Run skill"
-                      aria-label={`Run ${skill.name}`}
-                    >
-                      <Play className="w-3.5 h-3.5" />
-                    </button>
+                  {/* Footer Status Bar */}
+                  <div
+                    className={cn(
+                      'h-10 px-4 border-t border-border bg-muted/20 flex items-center justify-between text-xs font-mono text-muted-foreground',
+                      'group-hover:bg-muted/30 transition-colors'
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-3 h-3" />
+                      <span>{t('skills.updatedToday')}</span>
+                    </div>
 
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log('[Like] Button clicked for skill:', skill.id);
-                        handleLike(skill.id);
-                      }}
-                      className="p-2 rounded-md hover:text-destructive hover:bg-destructive/10 transition-all duration-200 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-destructive/30"
-                      type="button"
-                      aria-label={likedSkills.has(skill.id) ? 'Unlike skill' : 'Like skill'}
-                    >
-                      <Heart
+                    <div className="flex items-center gap-3">
+                      {/* Run Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRunSkill(skill);
+                        }}
+                        className="p-2 rounded-md hover:text-green-600 hover:bg-green-500/10 transition-all duration-200 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                        title="Run skill"
+                        aria-label={`Run ${skill.name}`}
+                      >
+                        <Play className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleLike(skill.id);
+                        }}
+                        className="p-2 rounded-md hover:text-destructive hover:bg-destructive/10 transition-all duration-200 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-destructive/30"
+                        type="button"
+                        aria-label={likedSkills.has(skill.id) ? 'Unlike skill' : 'Like skill'}
+                      >
+                        <Heart
+                          className={cn(
+                            'w-3.5 h-3.5 transition-colors pointer-events-none',
+                            likedSkills.has(skill.id) ? 'fill-destructive text-destructive' : ''
+                          )}
+                        />
+                      </button>
+
+                      {/* Add Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleCart(skill.id);
+                        }}
                         className={cn(
-                          'w-3.5 h-3.5 transition-colors pointer-events-none',
-                          likedSkills.has(skill.id) ? 'fill-destructive text-destructive' : ''
+                          'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-wide transition-all duration-200 border cursor-pointer min-h-[28px] focus:outline-none focus:ring-2 focus:ring-primary/30',
+                          cart.has(skill.id)
+                            ? 'bg-green-500/10 border-green-500/20 text-green-600 hover:bg-green-500/20'
+                            : 'bg-background border-border text-muted-foreground hover:border-primary/30 hover:text-primary'
                         )}
-                      />
-                    </button>
+                        aria-label={cart.has(skill.id) ? t('skills.removeFromBag', { name: skill.name }) : t('skills.addToBag', { name: skill.name })}
+                      >
+                        {cart.has(skill.id) ? (
+                          <>
+                            <Check className="w-3 h-3" />
+                            <span>{t('skills.inBag')}</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag className="w-3 h-3" />
+                            <span>{t('skills.add')}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
-                    {/* Add Button - Small & Pill shaped */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleCart(skill.id);
-                      }}
-                      className={cn(
-                        'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-wide transition-all duration-200 border cursor-pointer min-h-[28px] focus:outline-none focus:ring-2 focus:ring-primary/30',
-                        cart.has(skill.id)
-                          ? 'bg-green-500/10 border-green-500/20 text-green-600 hover:bg-green-500/20'
-                          : 'bg-background border-border text-muted-foreground hover:border-primary/30 hover:text-primary'
-                      )}
-                      aria-label={cart.has(skill.id) ? t('skills.removeFromBag', { name: skill.name }) : t('skills.addToBag', { name: skill.name })}
-                    >
-                      {cart.has(skill.id) ? (
-                        <>
-                          <Check className="w-3 h-3" />
-                          <span>{t('skills.inBag')}</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag className="w-3 h-3" />
-                          <span>{t('skills.add')}</span>
-                        </>
-                      )}
-                    </button>
+                {/* === User Mode: Image+Text card === */}
+                <div className={cn(
+                  'transition-all duration-400',
+                  mode === 'user' ? 'opacity-100 max-h-[500px]' : 'opacity-0 max-h-0 overflow-hidden'
+                )}>
+                  {/* Category color top bar */}
+                  <div className={`h-2 ${getCategoryColor(skill.category).solid} relative overflow-hidden`}>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent" />
+                  </div>
+
+                  <div className="p-5">
+                    {/* Header with icon and category */}
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className={`w-12 h-12 rounded-lg ${getCategoryColor(skill.category).bg} ${getCategoryColor(skill.category).border} border flex items-center justify-center text-2xl flex-shrink-0 transition-all group-hover:scale-110`}>
+                        {skill.icon}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate text-base">
+                          {skill.name}
+                        </h3>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getCategoryColor(skill.category).bg} ${getCategoryColor(skill.category).text}`}>
+                          {skill.category}
+                        </span>
+                      </div>
+
+                      {/* Popularity */}
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span className="font-medium">{skill.popularity || 0}</span>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
+                      {skill.description}
+                    </p>
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRunSkill(skill);
+                        }}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary-hover transition-all duration-200"
+                      >
+                        <Play className="w-3.5 h-3.5" />
+                        Try Now
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLike(skill.id);
+                        }}
+                        className={`p-2 rounded-lg transition-all duration-200 ${likedSkills.has(skill.id)
+                          ? 'bg-pink-500/10 text-pink-500'
+                          : 'bg-secondary text-muted-foreground hover:bg-pink-500/10 hover:text-pink-500'
+                          }`}
+                      >
+                        <Heart className={`w-4 h-4 ${likedSkills.has(skill.id) ? 'fill-current' : ''}`} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleCart(skill.id);
+                        }}
+                        className={`p-2 rounded-lg transition-all duration-200 ${cart.has(skill.id)
+                          ? 'bg-green-500/10 text-green-500'
+                          : 'bg-secondary text-muted-foreground hover:bg-green-500/10 hover:text-green-500'
+                          }`}
+                      >
+                        {cart.has(skill.id) ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <ShoppingBag className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

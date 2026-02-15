@@ -1,17 +1,17 @@
 import { useState, useEffect, useContext, createContext } from 'react';
 
 interface VersionModeContextType {
-  mode: 'pro' | 'normal';
-  setMode: (mode: 'pro' | 'normal') => void;
+  mode: 'dev' | 'user';
+  setMode: (mode: 'dev' | 'user') => void;
   toggleMode: () => void;
 }
 
 const VersionModeContext = createContext<VersionModeContextType | undefined>(undefined);
 
 export function VersionModeProvider({ children }: { children: any }) {
-  const [mode, setMode] = useState<'pro' | 'normal'>(() => {
+  const [mode, setMode] = useState<'dev' | 'user'>(() => {
     const saved = localStorage.getItem('versionMode');
-    return (saved === 'normal' || saved === 'pro') ? saved : 'pro';
+    return (saved === 'user' || saved === 'dev') ? saved : 'dev';
   });
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export function VersionModeProvider({ children }: { children: any }) {
   }, [mode]);
 
   const toggleMode = () => {
-    setMode((prev) => (prev === 'pro' ? 'normal' : 'pro'));
+    setMode((prev) => (prev === 'dev' ? 'user' : 'dev'));
   };
 
   return (

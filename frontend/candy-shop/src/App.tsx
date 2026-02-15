@@ -20,10 +20,7 @@ import { storageUtils } from './utils/storage';
 import { SKILLS_DATA } from './data/skillsData';
 import { toast } from 'sonner';
 import { LanguageProvider } from './contexts/LanguageContext';
-import { VersionModeProvider, useVersionMode } from './contexts/VersionModeContext';
-import { NormalLayout } from './components/normal-mode/Layout';
-import { NormalHero } from './components/normal-mode/Hero';
-import { NormalSkillsGrid } from './components/normal-mode/SkillsGrid';
+import { VersionModeProvider } from './contexts/VersionModeContext';
 
 // ---------------------------------------------------------------------------
 // Error Boundary — prevents blank screen on unhandled errors
@@ -127,10 +124,8 @@ function HomePage({
   onOpenDocs,
   onRunSkill,
 }: any) {
-  const { mode } = useVersionMode();
   const [searchQuery, setSearchQuery] = useState('');
-  const categoryFilter = null;
-  const [categoryFilterPro, setCategoryFilterPro] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
   const handleSearchFocus = () => {
     document.getElementById('search-input')?.focus();
@@ -142,59 +137,35 @@ function HomePage({
   };
 
   return (
-    <div className="mode-transition-container">
-      {/* Normal Mode Layer */}
-      <div className={`mode-layer ${mode === 'normal' ? 'mode-active' : 'mode-hidden'}`}>
-        <NormalLayout
-          onOpenAuth={onOpenAuth}
-          onOpenCart={onOpenCart}
-          cartCount={cart.size}
-        >
-          <NormalHero onOpenDocs={onOpenDocs} />
-          <NormalSkillsGrid
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            categoryFilter={categoryFilter}
-            cart={cart}
-            onToggleCart={onToggleCart}
-            onRunSkill={onRunSkill}
-          />
-        </NormalLayout>
-      </div>
-
-      {/* Pro Mode Layer */}
-      <div className={`mode-layer ${mode === 'pro' ? 'mode-active' : 'mode-hidden'}`}>
-        <Layout
-          onOpenAuth={onOpenAuth}
-          onOpenCart={onOpenCart}
-          user={user}
-          cartCount={cart.size}
-          onNavFind={handleSearchFocus}
-          onNavCd={handleCategoryScroll}
-          onNavMan={onOpenDocs}
-        >
-          <Hero onOpenDocs={onOpenDocs} />
-          <Categories
-            onSelectCategory={(cat) => {
-              setCategoryFilterPro(cat);
-              setSearchQuery('');
-              document.getElementById('skills-grid')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          />
-          <SkillsGrid
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            categoryFilter={categoryFilterPro}
-            setCategoryFilter={setCategoryFilterPro}
-            cart={cart}
-            onToggleCart={onToggleCart}
-            onRunSkill={onRunSkill}
-          />
-          <ExternalResources />
-          <FAQ />
-        </Layout>
-      </div>
-    </div>
+    <Layout
+      onOpenAuth={onOpenAuth}
+      onOpenCart={onOpenCart}
+      user={user}
+      cartCount={cart.size}
+      onNavFind={handleSearchFocus}
+      onNavCd={handleCategoryScroll}
+      onNavMan={onOpenDocs}
+    >
+      <Hero onOpenDocs={onOpenDocs} />
+      <Categories
+        onSelectCategory={(cat) => {
+          setCategoryFilter(cat);
+          setSearchQuery('');
+          document.getElementById('skills-grid')?.scrollIntoView({ behavior: 'smooth' });
+        }}
+      />
+      <SkillsGrid
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
+        cart={cart}
+        onToggleCart={onToggleCart}
+        onRunSkill={onRunSkill}
+      />
+      <ExternalResources />
+      <FAQ />
+    </Layout>
   );
 }
 

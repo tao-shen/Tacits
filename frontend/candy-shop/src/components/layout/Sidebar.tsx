@@ -378,7 +378,7 @@ export function Sidebar({
                   <img
                     src={avatarUrl}
                     alt="Avatar"
-                    className="w-8 h-8 rounded-full border border-border"
+                    className="w-8 h-8 rounded-full border border-border flex-shrink-0"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                       e.currentTarget.nextElementSibling?.classList.remove('hidden');
@@ -387,7 +387,7 @@ export function Sidebar({
                 );
               }
               return (
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <User className="w-4 h-4 text-primary" />
                 </div>
               );
@@ -428,7 +428,7 @@ export function Sidebar({
           </button>
         )}
 
-        {/* Mode Switcher - Pro/Normal */}
+        {/* Mode Switcher - Dev/User */}
         <button
           onClick={toggleMode}
           className={cn(
@@ -439,16 +439,16 @@ export function Sidebar({
             'border border-rose-500/20 hover:border-rose-500/30',
             collapsed ? 'justify-center' : 'justify-start'
           )}
-          title={collapsed ? (mode === 'pro' ? 'Switch to Normal Mode' : 'Switch to Pro Mode') : undefined}
+          title={collapsed ? (mode === 'dev' ? 'Switch to User Mode' : 'Switch to Dev Mode') : undefined}
         >
-          {mode === 'pro' ? (
+          {mode === 'dev' ? (
             <Home className="w-5 h-5 text-rose-500" />
           ) : (
             <Sparkles className="w-5 h-5 text-rose-500" />
           )}
           {!collapsed && (
             <span className="text-rose-500 dark:text-rose-400">
-              {mode === 'pro' ? 'Normal Mode' : 'Pro Mode'}
+              {mode === 'dev' ? 'User Mode' : 'Dev Mode'}
             </span>
           )}
         </button>
