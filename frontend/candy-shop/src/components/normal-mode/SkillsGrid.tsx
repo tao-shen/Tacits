@@ -61,90 +61,104 @@ export function NormalSkillsGrid({
 
   // Use same colors as Pro Mode for consistency
   const getCategoryColor = (category: string) => {
-    const colors: Record<string, { bg: string; text: string; border: string; solid: string }> = {
+    const colors: Record<string, { bg: string; text: string; border: string; solid: string; hex: string }> = {
       'Knowledge': {
         bg: 'bg-blue-500/10',
         text: 'text-blue-400',
         border: 'border-blue-500/20',
         solid: 'bg-blue-500',
+        hex: '#3b82f6',
       },
       'Analysis': {
         bg: 'bg-violet-500/10',
         text: 'text-violet-400',
         border: 'border-violet-500/20',
         solid: 'bg-violet-500',
+        hex: '#8b5cf6',
       },
       'Development': {
         bg: 'bg-orange-500/10',
         text: 'text-orange-400',
         border: 'border-orange-500/20',
         solid: 'bg-orange-500',
+        hex: '#f97316',
       },
       'Design': {
         bg: 'bg-pink-500/10',
         text: 'text-pink-400',
         border: 'border-pink-500/20',
         solid: 'bg-pink-500',
+        hex: '#ec4899',
       },
       'Marketing': {
         bg: 'bg-red-500/10',
         text: 'text-red-400',
         border: 'border-red-500/20',
         solid: 'bg-red-500',
+        hex: '#ef4444',
       },
       'Productivity': {
         bg: 'bg-amber-500/10',
         text: 'text-amber-400',
         border: 'border-amber-500/20',
         solid: 'bg-amber-500',
+        hex: '#f59e0b',
       },
       'Tools': {
         bg: 'bg-emerald-500/10',
         text: 'text-emerald-400',
         border: 'border-emerald-500/20',
         solid: 'bg-emerald-500',
+        hex: '#10b981',
       },
       'Research': {
         bg: 'bg-cyan-500/10',
         text: 'text-cyan-400',
         border: 'border-cyan-500/20',
         solid: 'bg-cyan-500',
+        hex: '#06b6d4',
       },
       'Mobile': {
         bg: 'bg-indigo-500/10',
         text: 'text-indigo-400',
         border: 'border-indigo-500/20',
         solid: 'bg-indigo-500',
+        hex: '#6366f1',
       },
       'Writing': {
         bg: 'bg-rose-500/10',
         text: 'text-rose-400',
         border: 'border-rose-500/20',
         solid: 'bg-rose-500',
+        hex: '#f43f5e',
       },
       'Creative': {
         bg: 'bg-purple-500/10',
         text: 'text-purple-400',
         border: 'border-purple-500/20',
         solid: 'bg-purple-500',
+        hex: '#a855f7',
       },
       'Developer': {
         bg: 'bg-green-500/10',
         text: 'text-green-400',
         border: 'border-green-500/20',
         solid: 'bg-green-500',
+        hex: '#22c55e',
       },
       'Communication': {
         bg: 'bg-rose-500/10',
         text: 'text-rose-400',
         border: 'border-rose-500/20',
         solid: 'bg-rose-500',
+        hex: '#f43f5e',
       },
       'Analytics': {
         bg: 'bg-amber-500/10',
         text: 'text-amber-400',
         border: 'border-amber-500/20',
         solid: 'bg-amber-500',
+        hex: '#f59e0b',
       },
     };
     return colors[category] || {
@@ -152,6 +166,7 @@ export function NormalSkillsGrid({
       text: 'text-gray-400',
       border: 'border-gray-500/20',
       solid: 'bg-gray-500',
+      hex: '#6b7280',
     };
   };
 
@@ -182,14 +197,17 @@ export function NormalSkillsGrid({
             </div>
           </div>
 
-          {/* Skills Grid - Visual Cards with Pro Mode aesthetics */}
+          {/* Skills Grid - Visual Cards with gradient backgrounds */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredSkills.map((skill) => {
               const colors = getCategoryColor(skill.category);
               return (
                 <div
                   key={skill.id}
-                  className="group relative bg-card rounded-xl border border-border hover:border-primary/50 overflow-hidden hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
+                  className="group relative rounded-xl border border-border hover:border-primary/50 overflow-hidden hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
+                  style={{
+                    background: `linear-gradient(135deg, var(--color-card) 55%, ${colors.hex}12 100%)`,
+                  }}
                   onClick={() => setSelectedSkill(skill)}
                 >
                   {/* Visual top bar - transitioning from code style to colorful */}

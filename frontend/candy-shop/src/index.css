@@ -328,3 +328,31 @@
   --normal-primary: #f43f5e;
   --normal-secondary: #f59e0b;
 }
+
+/* ==================== Mode Transition ==================== */
+.mode-transition-container {
+  position: relative;
+  min-height: 100vh;
+}
+
+.mode-layer {
+  transition: opacity 0.4s ease-in-out;
+  will-change: opacity;
+}
+
+.mode-active {
+  opacity: 1;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.mode-hidden {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  height: 0;
+}
