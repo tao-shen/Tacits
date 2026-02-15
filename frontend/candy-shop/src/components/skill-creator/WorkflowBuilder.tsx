@@ -34,6 +34,24 @@ interface WorkflowBuilderProps {
   onBack?: () => void;
 }
 
+// Custom Brain icon component (must be defined before NODE_TYPES)
+const Brain = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-2.5 2.5H6a2.5 2.5 0 0 1-2.5-2.5V4.5A2.5 2.5 0 0 1 6 2z" />
+    <path d="M6 2v4" />
+    <path d="M18 2v4" />
+    <path d="M8.5 2h7" />
+  </svg>
+);
+
 // Node type definitions with icons and colors
 const NODE_TYPES: Array<{
   type: WorkflowNodeType;
@@ -132,23 +150,6 @@ const NODE_TYPES: Array<{
     defaultConfig: { inputType: 'text', prompt: '' },
   },
 ];
-
-const Brain = ({ className }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-2.5 2.5H6a2.5 2.5 0 0 1-2.5-2.5V4.5A2.5 2.5 0 0 1 6 2z" />
-    <path d="M6 2v4" />
-    <path d="M18 2v4" />
-    <path d="M8.5 2h7" />
-  </svg>
-);
 
 export function WorkflowBuilder({
   initialWorkflow,
