@@ -19,17 +19,17 @@ interface SkillsGridProps {
 }
 
 const getCategoryColor = (category: string) => {
-  const colors: Record<string, { bg: string; text: string; border: string; solid: string }> = {
-    Development: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20', solid: 'bg-blue-500' },
-    Design: { bg: 'bg-pink-500/10', text: 'text-pink-400', border: 'border-pink-500/20', solid: 'bg-pink-500' },
-    Marketing: { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/20', solid: 'bg-orange-500' },
-    Productivity: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20', solid: 'bg-emerald-500' },
-    Tools: { bg: 'bg-violet-500/10', text: 'text-violet-400', border: 'border-violet-500/20', solid: 'bg-violet-500' },
-    Research: { bg: 'bg-cyan-500/10', text: 'text-cyan-400', border: 'border-cyan-500/20', solid: 'bg-cyan-500' },
-    Mobile: { bg: 'bg-lime-500/10', text: 'text-lime-400', border: 'border-lime-500/20', solid: 'bg-lime-500' },
-    Writing: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', border: 'border-yellow-500/20', solid: 'bg-yellow-500' },
+  const colors: Record<string, { bg: string; text: string; border: string; solid: string; illustration: string }> = {
+    Development: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20', solid: 'bg-blue-500', illustration: '/illustrations/development.png' },
+    Design: { bg: 'bg-pink-500/10', text: 'text-pink-400', border: 'border-pink-500/20', solid: 'bg-pink-500', illustration: '/illustrations/design.png' },
+    Marketing: { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/20', solid: 'bg-orange-500', illustration: '/illustrations/marketing.png' },
+    Productivity: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20', solid: 'bg-emerald-500', illustration: '/illustrations/productivity.png' },
+    Tools: { bg: 'bg-violet-500/10', text: 'text-violet-400', border: 'border-violet-500/20', solid: 'bg-violet-500', illustration: '/illustrations/tools.png' },
+    Research: { bg: 'bg-cyan-500/10', text: 'text-cyan-400', border: 'border-cyan-500/20', solid: 'bg-cyan-500', illustration: '/illustrations/research.png' },
+    Mobile: { bg: 'bg-lime-500/10', text: 'text-lime-400', border: 'border-lime-500/20', solid: 'bg-lime-500', illustration: '/illustrations/mobile.png' },
+    Writing: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', border: 'border-yellow-500/20', solid: 'bg-yellow-500', illustration: '/illustrations/writing.png' },
   };
-  return colors[category] || { bg: 'bg-gray-500/10', text: 'text-gray-400', border: 'border-gray-500/20', solid: 'bg-gray-500' };
+  return colors[category] || { bg: 'bg-gray-500/10', text: 'text-gray-400', border: 'border-gray-500/20', solid: 'bg-gray-500', illustration: '/illustrations/development.png' };
 };
 
 export function SkillsGrid({
@@ -326,33 +326,43 @@ export function SkillsGrid({
                 {/* === User Mode: Image+Text card === */}
                 <div className={cn(
                   'transition-all duration-400',
-                  mode === 'user' ? 'opacity-100 max-h-[500px]' : 'opacity-0 max-h-0 overflow-hidden'
+                  mode === 'user' ? 'opacity-100 max-h-[600px]' : 'opacity-0 max-h-0 overflow-hidden'
                 )}>
-                  {/* Category color top bar */}
-                  <div className={`h-2 ${getCategoryColor(skill.category).solid} relative overflow-hidden`}>
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent" />
-                  </div>
-
-                  <div className="p-5">
-                    {/* Header with icon and category */}
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className={`w-12 h-12 rounded-lg ${getCategoryColor(skill.category).bg} ${getCategoryColor(skill.category).border} border flex items-center justify-center text-2xl flex-shrink-0 transition-all group-hover:scale-110`}>
+                  {/* Illustration banner */}
+                  <div className="relative h-36 overflow-hidden">
+                    <img
+                      src={getCategoryColor(skill.category).illustration}
+                      alt={skill.category}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Gradient overlay for readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
+                    {/* Floating icon on illustration */}
+                    <div className="absolute bottom-3 left-4 flex items-center gap-3">
+                      <div className={`w-11 h-11 rounded-xl ${getCategoryColor(skill.category).bg} backdrop-blur-sm border ${getCategoryColor(skill.category).border} flex items-center justify-center text-xl shadow-lg`}>
                         {skill.icon}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate text-base">
+                      <div>
+                        <h3 className="font-bold text-foreground text-base leading-tight drop-shadow-sm">
                           {skill.name}
                         </h3>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getCategoryColor(skill.category).bg} ${getCategoryColor(skill.category).text}`}>
+                        <span className={`text-xs font-medium ${getCategoryColor(skill.category).text}`}>
                           {skill.category}
                         </span>
                       </div>
+                    </div>
+                  </div>
 
-                      {/* Popularity */}
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
+                  <div className="p-4 pt-3">
+                    {/* Popularity row */}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                         <span className="font-medium">{skill.popularity || 0}</span>
                       </div>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getCategoryColor(skill.category).bg} ${getCategoryColor(skill.category).text}`}>
+                        {skill.category}
+                      </span>
                     </div>
 
                     {/* Description */}
