@@ -57,141 +57,233 @@ export function NormalSkillsGrid({
       const matchesCategory = categoryFilter ? skill.category === categoryFilter : true;
       return matchesSearch && matchesCategory;
     }).sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-    }, [searchQuery, categoryFilter]);
+  }, [searchQuery, categoryFilter]);
 
+  // Use same colors as Pro Mode for consistency
   const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      'Productivity': 'from-blue-400 to-blue-600',
-      'Creative': 'from-purple-400 to-purple-600',
-      'Developer': 'from-green-400 to-green-600',
-      'Communication': 'from-rose-400 to-rose-600',
-      'Analytics': 'from-amber-400 to-amber-600',
+    const colors: Record<string, { bg: string; text: string; border: string; solid: string }> = {
+      'Knowledge': {
+        bg: 'bg-blue-500/10',
+        text: 'text-blue-400',
+        border: 'border-blue-500/20',
+        solid: 'bg-blue-500',
+      },
+      'Analysis': {
+        bg: 'bg-violet-500/10',
+        text: 'text-violet-400',
+        border: 'border-violet-500/20',
+        solid: 'bg-violet-500',
+      },
+      'Development': {
+        bg: 'bg-orange-500/10',
+        text: 'text-orange-400',
+        border: 'border-orange-500/20',
+        solid: 'bg-orange-500',
+      },
+      'Design': {
+        bg: 'bg-pink-500/10',
+        text: 'text-pink-400',
+        border: 'border-pink-500/20',
+        solid: 'bg-pink-500',
+      },
+      'Marketing': {
+        bg: 'bg-red-500/10',
+        text: 'text-red-400',
+        border: 'border-red-500/20',
+        solid: 'bg-red-500',
+      },
+      'Productivity': {
+        bg: 'bg-amber-500/10',
+        text: 'text-amber-400',
+        border: 'border-amber-500/20',
+        solid: 'bg-amber-500',
+      },
+      'Tools': {
+        bg: 'bg-emerald-500/10',
+        text: 'text-emerald-400',
+        border: 'border-emerald-500/20',
+        solid: 'bg-emerald-500',
+      },
+      'Research': {
+        bg: 'bg-cyan-500/10',
+        text: 'text-cyan-400',
+        border: 'border-cyan-500/20',
+        solid: 'bg-cyan-500',
+      },
+      'Mobile': {
+        bg: 'bg-indigo-500/10',
+        text: 'text-indigo-400',
+        border: 'border-indigo-500/20',
+        solid: 'bg-indigo-500',
+      },
+      'Writing': {
+        bg: 'bg-rose-500/10',
+        text: 'text-rose-400',
+        border: 'border-rose-500/20',
+        solid: 'bg-rose-500',
+      },
+      'Creative': {
+        bg: 'bg-purple-500/10',
+        text: 'text-purple-400',
+        border: 'border-purple-500/20',
+        solid: 'bg-purple-500',
+      },
+      'Developer': {
+        bg: 'bg-green-500/10',
+        text: 'text-green-400',
+        border: 'border-green-500/20',
+        solid: 'bg-green-500',
+      },
+      'Communication': {
+        bg: 'bg-rose-500/10',
+        text: 'text-rose-400',
+        border: 'border-rose-500/20',
+        solid: 'bg-rose-500',
+      },
+      'Analytics': {
+        bg: 'bg-amber-500/10',
+        text: 'text-amber-400',
+        border: 'border-amber-500/20',
+        solid: 'bg-amber-500',
+      },
     };
-    return colors[category] || 'from-gray-400 to-gray-600';
-  };
-
-  const getCategoryBg = (category: string) => {
-    const colors: Record<string, string> = {
-      'Productivity': 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-      'Creative': 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
-      'Developer': 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
-      'Communication': 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400',
-      'Analytics': 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
+    return colors[category] || {
+      bg: 'bg-gray-500/10',
+      text: 'text-gray-400',
+      border: 'border-gray-500/20',
+      solid: 'bg-gray-500',
     };
-    return colors[category] || 'bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400';
   };
 
   return (
     <>
-      <section id="skills" className="py-20 bg-white/50 dark:bg-gray-800/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto mb-12">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+      <section id="skills" className="py-12 bg-background">
+        <div className="container max-w-7xl mx-auto px-4">
+          {/* Section Header & Search - Consistent with Pro Mode */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-1.5 text-foreground">
+                {categoryFilter ? `${categoryFilter} Skills` : 'Discover Skills'}
+              </h2>
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <span>Browse {filteredSkills.length} available skills</span>
+              </div>
+            </div>
+
+            <div className="w-full md:w-72 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('skills.search') || 'Search skills...'}
-                className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent shadow-lg text-gray-900 dark:text-white placeholder-gray-400 transition-all duration-300"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSkills.map((skill) => (
-              <div
-                key={skill.id}
-                className="group relative bg-white dark:bg-gray-900 rounded-3xl shadow-lg hover:shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:-translate-y-2 transition-all duration-300 cursor-pointer"
-                onClick={() => setSelectedSkill(skill)}
-              >
-                <div className={`h-24 bg-gradient-to-br ${getCategoryColor(skill.category)} relative overflow-hidden`}>
-                  <div className="absolute inset-0 bg-black/10" />
-                  <div className="absolute bottom-4 left-4 w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-2xl">
-                    {skill.icon}
+          {/* Skills Grid - Visual Cards with Pro Mode aesthetics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredSkills.map((skill) => {
+              const colors = getCategoryColor(skill.category);
+              return (
+                <div
+                  key={skill.id}
+                  className="group relative bg-card rounded-xl border border-border hover:border-primary/50 overflow-hidden hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
+                  onClick={() => setSelectedSkill(skill)}
+                >
+                  {/* Visual top bar - transitioning from code style to colorful */}
+                  <div className={`h-2 ${colors.solid} relative overflow-hidden`}>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent" />
+                  </div>
+
+                  <div className="p-4">
+                    {/* Header with icon and category */}
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className={`w-11 h-11 rounded-lg ${colors.bg} ${colors.border} border flex items-center justify-center text-xl flex-shrink-0 transition-all group-hover:scale-110`}>
+                        {skill.icon}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                          {skill.name}
+                        </h3>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colors.bg} ${colors.text}`}>
+                          {skill.category}
+                        </span>
+                      </div>
+
+                      {/* Popularity indicator */}
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span className="font-medium">{skill.popularity || 0}</span>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2 leading-relaxed">
+                      {skill.description}
+                    </p>
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRunSkill(skill);
+                        }}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary-hover transition-all duration-200"
+                      >
+                        <Play className="w-3.5 h-3.5" />
+                        Try Now
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLike(skill.id);
+                        }}
+                        className={`p-2 rounded-lg transition-all duration-200 ${
+                          likedSkills.has(skill.id)
+                            ? 'bg-pink-500/10 text-pink-500'
+                            : 'bg-secondary text-muted-foreground hover:bg-pink-500/10 hover:text-pink-500'
+                        }`}
+                      >
+                        <Heart className={`w-4 h-4 ${likedSkills.has(skill.id) ? 'fill-current' : ''}`} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleCart(skill.id);
+                        }}
+                        className={`p-2 rounded-lg transition-all duration-200 ${
+                          cart.has(skill.id)
+                            ? 'bg-green-500/10 text-green-500'
+                            : 'bg-secondary text-muted-foreground hover:bg-green-500/10 hover:text-green-500'
+                        }`}
+                      >
+                        {cart.has(skill.id) ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <ShoppingBag className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                <div className="p-6">
-                  <div className="inline-flex px-3 py-1 rounded-full text-xs font-medium mb-3">
-                    <span className={`px-3 py-1 rounded-full ${getCategoryBg(skill.category)}`}>
-                      {skill.category}
-                    </span>
-                  </div>
-
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-rose-500 dark:group-hover:text-rose-400 transition-colors duration-300">
-                    {skill.name}
-                  </h3>
-
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">
-                    {skill.description}
-                  </p>
-
-                  <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      <span className="font-medium">{skill.popularity || 0}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <ShoppingBag className="w-4 h-4" />
-                      <span>{(skill as any).installCount || '1k+'}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRunSkill(skill);
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 text-white font-medium text-sm hover:shadow-lg hover:scale-105 transition-all duration-300"
-                    >
-                      <Play className="w-4 h-4" />
-                      Try Now
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleLike(skill.id);
-                      }}
-                      className={`p-2.5 rounded-xl transition-all duration-300 ${
-                        likedSkills.has(skill.id)
-                          ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-500'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:text-rose-500'
-                        }`}
-                    >
-                      <Heart className={`w-4 h-4 ${likedSkills.has(skill.id) ? 'fill-current' : ''}`} />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleCart(skill.id);
-                      }}
-                      className={`p-2.5 rounded-xl transition-all duration-300 ${
-                        cart.has(skill.id)
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-500'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-500'
-                        }`}
-                    >
-                      {cart.has(skill.id) ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        <ShoppingBag className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
+          {/* Empty state */}
           {filteredSkills.length === 0 && (
-            <div className="text-center py-20">
-              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-gray-400" />
+            <div className="text-center py-16">
+              <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center mx-auto mb-3">
+                <Search className="w-7 h-7 text-muted-foreground" />
               </div>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
+              <p className="text-muted-foreground text-base">
                 {t('skills.noResults') || 'No skills found'}
+              </p>
+              <p className="text-muted-foreground/60 text-sm mt-1.5">
+                Try adjusting your search or filters
               </p>
             </div>
           )}
