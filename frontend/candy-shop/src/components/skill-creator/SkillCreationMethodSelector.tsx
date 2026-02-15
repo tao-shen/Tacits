@@ -1,11 +1,18 @@
-import { Upload, Edit3, Github } from 'lucide-react';
+import { Upload, Edit3, Github, GitBranch } from 'lucide-react';
 
 interface SkillCreationMethodSelectorProps {
-  onSelectMethod: (method: 'upload' | 'manual' | 'github') => void;
+  onSelectMethod: (method: 'upload' | 'manual' | 'github' | 'workflow') => void;
 }
 
 export function SkillCreationMethodSelector({ onSelectMethod }: SkillCreationMethodSelectorProps) {
   const methods = [
+    {
+      id: 'workflow',
+      title: 'Visual Workflow Builder',
+      description: 'Build complex agent skills using visual node-based workflow editor (like Refly)',
+      icon: GitBranch,
+      color: 'from-violet-600 to-purple-700',
+    },
     {
       id: 'upload',
       title: 'Upload Files',
@@ -16,7 +23,7 @@ export function SkillCreationMethodSelector({ onSelectMethod }: SkillCreationMet
     {
       id: 'manual',
       title: 'Manual Creation',
-      description: 'Create a skill by manually entering all the details and configuration',
+      description: 'Create a skill by manually entering all of the details and configuration',
       icon: Edit3,
       color: 'from-primary to-primary-active',
     },
@@ -36,13 +43,13 @@ export function SkillCreationMethodSelector({ onSelectMethod }: SkillCreationMet
         <p className="text-gray-600">Select how you'd like to create your new skill</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {methods.map((method) => {
           const Icon = method.icon;
           return (
             <button
               key={method.id}
-              onClick={() => onSelectMethod(method.id as 'upload' | 'manual' | 'github')}
+              onClick={() => onSelectMethod(method.id as 'upload' | 'manual' | 'github' | 'workflow')}
               className="group relative overflow-hidden rounded-xl bg-white border-2 border-gray-200 hover:border-primary transition-all hover:shadow-lg p-6 text-left"
             >
               {/* Background gradient on hover */}

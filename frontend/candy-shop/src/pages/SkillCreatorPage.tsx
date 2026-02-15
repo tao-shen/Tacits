@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { SkillCreationMethodSelector } from '../components/skill-creator/SkillCreationMethodSelector';
 import { FileUploadZone } from '../components/skill-creator/FileUploadZone';
 import { AnalysisProgress } from '../components/skill-creator/AnalysisProgress';
 import { SkillPreviewEditor } from '../components/skill-creator/SkillPreviewEditor';
+import { WorkflowBuilder } from '../components/skill-creator/WorkflowBuilder';
 import { useSkillAnalysis } from '../hooks/useSkillAnalysis';
 import { storageUtils } from '../utils/storage';
+import { workflowToSkill, validateWorkflow } from '../utils/workflowConverter';
 import type { CreationStep, Skill, AnalysisResult } from '../types/skill-creator';
+import type { Workflow } from '../types/workflow';
 
 interface SkillCreatorPageProps {
   onComplete: () => void;
@@ -13,7 +17,10 @@ interface SkillCreatorPageProps {
   onSkillCreated?: (skill: Partial<Skill>) => void;
 }
 
+type CreationMethod = 'upload' | 'manual' | 'github' | 'workflow';
+
 export function SkillCreatorPage({ onComplete, onCancel }: SkillCreatorPageProps) {
+  const [creationMethod, setCreationMethod] = useState<CreationMethod | null>(null);
   const [step, setStep] = useState<CreationStep>('upload');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [generatedSkill, setGeneratedSkill] = useState<Partial<Skill> | null>(null);
@@ -126,16 +133,95 @@ export function SkillCreatorPage({ onComplete, onCancel }: SkillCreatorPageProps
     setFeedback(null);
   };
 
+  // Handle workflow save
+  const handleWorkflowSave = (workflow: Workflow) => {
+    try {
+      const validation = validateWorkflow(workflow);
+      if (!validation.valid) {
+        setFeedback({ type: 'error', message: validation.errors.join(', ') });
+        return;
+      }
+
+      const skill = workflowToSkill(workflow);
+      storageUtils.saveSkill(skill as Skill);
+
+      setFeedback({ type: 'success', message: 'Workflow skill saved successfully!' });
+      setTimeout(() => {
+        onComplete();
+      }, 1500);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Save failed';
+      setFeedback({ type: 'error', message: errorMsg });
+      console.error('Workflow save error:', err);
+    }
+  };
+
+  // Handle workflow execution
+  const handleWorkflowExecute = (workflow: Workflow) => {
+    const validation = validateWorkflow(workflow);
+    if (!validation.valid) {
+      setFeedback({ type: 'error', message: validation.errors.join(', ') });
+      return;
+    }
+
+    // Convert workflow to skill and navigate to executor
+    const skill = workflowToSkill(workflow);
+    onComplete(); // Will trigger navigation back to skills list
+  };
+
+  // If no creation method selected, show selector
+  if (!creationMethod) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <button
+            onClick={onCancel}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-4"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back
+          </button>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create AI Skill</h1>
+          <p className="text-gray-600">
+            Choose how you want to create your skill
+          </p>
+        </div>
+
+        <SkillCreationMethodSelector
+          onSelectMethod={(method) => setCreationMethod(method as CreationMethod)}
+        />
+      </div>
+    );
+  }
+
+  // If workflow selected, show WorkflowBuilder
+  if (creationMethod === 'workflow') {
+    return (
+      <WorkflowBuilder
+        onSave={handleWorkflowSave}
+        onExecute={handleWorkflowExecute}
+        onBack={() => setCreationMethod(null)}
+      />
+    );
+  }
+
+  // Original file upload flow
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <button
-          onClick={onCancel}
+          onClick={() => {
+            if (step === 'upload') {
+              setCreationMethod(null);
+            } else {
+              onCancel();
+            }
+          }}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-4"
         >
           <ArrowLeft className="w-5 h-5" />
-          Back
+          {step === 'upload' ? 'Back to Methods' : 'Back'}
         </button>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Create AI Skill</h1>
         <p className="text-gray-600">
