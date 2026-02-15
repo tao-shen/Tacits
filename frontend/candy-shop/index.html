@@ -64,7 +64,59 @@
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
+      #app-loader.remove {
+        display: none !important;
+      }
     </style>
+
+    <!-- Fallback: Ensure loader is hidden even if JavaScript fails -->
+    <script>
+      (function() {
+        // Hide loader after 5 seconds as emergency fallback
+        var fallbackTimer = setTimeout(function() {
+          var loader = document.getElementById('app-loader');
+          if (loader && loader.parentNode) {
+            console.warn('[Fallback] Force hiding loader after 5s');
+          loader.classList.add('hidden');
+          setTimeout(function() {
+              if (loader.parentNode) {
+                loader.parentNode.removeChild(loader);
+              }
+            }, 400);
+          }
+        }, 5000);
+
+        // Also hide on any error
+        window.addEventListener('error', function hideOnError() {
+          clearTimeout(fallbackTimer);
+          var loader = document.getElementById('app-loader');
+          if (loader && loader.parentNode) {
+            console.warn('[Error] Hiding loader due to error');
+            loader.classList.add('hidden');
+            setTimeout(function() {
+              if (loader.parentNode) {
+                loader.parentNode.removeChild(loader);
+              }
+            }, 400);
+          }
+        }, { once: true });
+
+        // Hide on unhandled rejection
+        window.addEventListener('unhandledrejection', function hideOnRejection() {
+          clearTimeout(fallbackTimer);
+          var loader = document.getElementById('app-loader');
+          if (loader && loader.parentNode) {
+            console.warn('[Rejection] Hiding loader due to unhandled rejection');
+            loader.classList.add('hidden');
+            setTimeout(function() {
+              if (loader.parentNode) {
+                loader.parentNode.removeChild(loader);
+              }
+            }, 400);
+          }
+        }, { once: true });
+      })();
+    </script>
   </head>
   <body>
     <!-- Loading spinner shown while React loads -->
