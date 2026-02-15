@@ -1,17 +1,15 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-export type VersionMode = 'pro' | 'normal';
+import { useState, useEffect, useContext, createContext } from 'react';
 
 interface VersionModeContextType {
-  mode: VersionMode;
-  setMode: (mode: VersionMode) => void;
+  mode: 'pro' | 'normal';
+  setMode: (mode: 'pro' | 'normal') => void;
   toggleMode: () => void;
 }
 
 const VersionModeContext = createContext<VersionModeContextType | undefined>(undefined);
 
-export function VersionModeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<VersionMode>(() => {
+export function VersionModeProvider({ children }: { children: any }) {
+  const [mode, setMode] = useState<'pro' | 'normal'>(() => {
     const saved = localStorage.getItem('versionMode');
     return (saved === 'normal' || saved === 'pro') ? saved : 'pro';
   });
@@ -21,12 +19,8 @@ export function VersionModeProvider({ children }: { children: ReactNode }) {
     document.documentElement.setAttribute('data-version-mode', mode);
   }, [mode]);
 
-  const setMode = (newMode: VersionMode) => {
-    setModeState(newMode);
-  };
-
   const toggleMode = () => {
-    setModeState(prev => prev === 'pro' ? 'normal' : 'pro');
+    setMode((prev) => (prev === 'pro' ? 'normal' : 'pro'));
   };
 
   return (

@@ -10,7 +10,6 @@ interface NormalSkillsGridProps {
   searchQuery: string;
   setSearchQuery: (q: string) => void;
   categoryFilter: string | null;
-  setCategoryFilter: (c: string | null) => void;
   cart: Set<string>;
   onToggleCart: (id: string) => void;
   onRunSkill: (skill: Skill) => void;
@@ -58,7 +57,7 @@ export function NormalSkillsGrid({
       const matchesCategory = categoryFilter ? skill.category === categoryFilter : true;
       return matchesSearch && matchesCategory;
     }).sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-  }, [searchQuery, categoryFilter]);
+    }, [searchQuery, categoryFilter]);
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -86,7 +85,6 @@ export function NormalSkillsGrid({
     <>
       <section id="skills" className="py-20 bg-white/50 dark:bg-gray-800/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Search Header */}
           <div className="max-w-2xl mx-auto mb-12">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -100,7 +98,6 @@ export function NormalSkillsGrid({
             </div>
           </div>
 
-          {/* Skills Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSkills.map((skill) => (
               <div
@@ -108,43 +105,29 @@ export function NormalSkillsGrid({
                 className="group relative bg-white dark:bg-gray-900 rounded-3xl shadow-lg hover:shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:-translate-y-2 transition-all duration-300 cursor-pointer"
                 onClick={() => setSelectedSkill(skill)}
               >
-                {/* Gradient Header */}
                 <div className={`h-24 bg-gradient-to-br ${getCategoryColor(skill.category)} relative overflow-hidden`}>
                   <div className="absolute inset-0 bg-black/10" />
-                  {/* Pattern Overlay */}
-                  <div
-                    className="absolute inset-0 opacity-20"
-                    style={{
-                      backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-                    }}
-                  />
-                  {/* Icon */}
-                  <div className="absolute bottom-4 left-4 w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <skill.icon className="w-6 h-6 text-white" />
+                  <div className="absolute bottom-4 left-4 w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-2xl">
+                    {skill.icon}
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="p-6">
-                  {/* Category Badge */}
                   <div className="inline-flex px-3 py-1 rounded-full text-xs font-medium mb-3">
                     <span className={`px-3 py-1 rounded-full ${getCategoryBg(skill.category)}`}>
                       {skill.category}
                     </span>
                   </div>
 
-                  {/* Title */}
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-rose-500 dark:group-hover:text-rose-400 transition-colors duration-300">
                     {skill.name}
                   </h3>
 
-                  {/* Description */}
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">
                     {skill.description}
                   </p>
 
-                  {/* Stats */}
-                  <div className="flex items-center gap-4 mb-4 text-sm text-gray-500 dark:text-gray-500">
+                  <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                       <span className="font-medium">{skill.popularity || 0}</span>
@@ -155,7 +138,6 @@ export function NormalSkillsGrid({
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
                   <div className="flex items-center gap-2">
                     <button
                       onClick={(e) => {
@@ -176,7 +158,7 @@ export function NormalSkillsGrid({
                         likedSkills.has(skill.id)
                           ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-500'
                           : 'bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:text-rose-500'
-                      }`}
+                        }`}
                     >
                       <Heart className={`w-4 h-4 ${likedSkills.has(skill.id) ? 'fill-current' : ''}`} />
                     </button>
@@ -189,7 +171,7 @@ export function NormalSkillsGrid({
                         cart.has(skill.id)
                           ? 'bg-green-100 dark:bg-green-900/30 text-green-500'
                           : 'bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-green-100 dark:hover:bg-green-900/30 hover:text-green-500'
-                      }`}
+                        }`}
                     >
                       {cart.has(skill.id) ? (
                         <Check className="w-4 h-4" />
@@ -199,14 +181,10 @@ export function NormalSkillsGrid({
                     </button>
                   </div>
                 </div>
-
-                {/* Hover Effect Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               </div>
             ))}
           </div>
 
-          {/* Empty State */}
           {filteredSkills.length === 0 && (
             <div className="text-center py-20">
               <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
@@ -220,7 +198,6 @@ export function NormalSkillsGrid({
         </div>
       </section>
 
-      {/* Skill Modal */}
       <SkillModal skill={selectedSkill} onClose={() => setSelectedSkill(null)} onRun={onRunSkill} />
     </>
   );

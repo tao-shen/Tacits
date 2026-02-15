@@ -144,6 +144,13 @@ export interface TodoItem {
   priority: string;
 }
 
+export interface FileAttachment {
+  id: string;
+  mimeType: string;
+  fileName: string;
+  dataUrl: string;
+}
+
 // ---------------------------------------------------------------------------
 // Stream callbacks
 // ---------------------------------------------------------------------------
@@ -583,6 +590,7 @@ class OpenCodeClient {
     options?: {
       model?: ModelConfig;
       system?: string;
+      files?: FileAttachment[];
     }
   ): Promise<void> {
     this.ensureClient();
@@ -846,6 +854,19 @@ class OpenCodeClient {
       const body: Record<string, any> = {
         parts: [{ type: 'text', text }],
       };
+
+      // Add file attachments if provided
+      if (options?.files && options.files.length > 0) {
+        const fileParts = options.files.map((file) => ({
+          id: file.id,
+          type: 'file' as const,
+          mime: file.mimeType,
+          filename: file.fileName,
+          url: file.dataUrl,
+        }));
+        body.parts = [...body.parts, ...fileParts];
+      }
+
       if (options?.model) {
         body.model = {
           providerID: options.model.providerID,

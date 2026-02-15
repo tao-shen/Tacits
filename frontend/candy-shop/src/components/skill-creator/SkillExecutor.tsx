@@ -28,6 +28,9 @@ import {
   ExternalLink,
   Save,
   Edit2,
+  Paperclip,
+  Image,
+  File,
 } from 'lucide-react';
 import type { Skill } from '../../types/skill-creator';
 import { SKILLS_DATA } from '../../data/skillsData';
@@ -47,6 +50,7 @@ import {
   type TodoItem,
   type SessionInfo,
   type QuestionEvent,
+  type FileAttachment,
 } from '../../lib/opencode-client';
 
 // ---------------------------------------------------------------------------
@@ -851,6 +855,15 @@ export function SkillExecutor({ skill, onClose }: SkillExecutorProps) {
   const [activeQuestion, setActiveQuestion] = useState<QuestionEvent | null>(null);
   const [pendingQuestionSessionIds, setPendingQuestionSessionIds] = useState<Set<string>>(new Set());
 
+  // File attachment state
+  const [attachedFiles, setAttachedFiles] = useState<Array<{
+    id: string;
+    file: File;
+    dataUrl: string;
+    mimeType: string;
+    fileName: string;
+  }>>([]);
+
   // Model state – fetched from the server
   const [models, setModels] = useState<ProviderModel[]>([]);
   const [selectedModel, setSelectedModel] = useState<ModelConfig | null>(null);
@@ -1091,13 +1104,78 @@ export function SkillExecutor({ skill, onClose }: SkillExecutorProps) {
     }
   }, [currentSessionId]);
 
+  // ── File handling ────────────────────────────────────────────────────────
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const newFiles = await Promise.all(
+      Array.from(files).map(async (file) => {
+        // Convert file to data URL
+        const reader = new FileReader();
+        return new Promise<{
+          id: string;
+          file: File;
+          dataUrl: string;
+          mimeType: string;
+          fileName: string;
+        }>((resolve) => {
+          reader.onload = () => {
+            resolve({
+              id: `file-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+              file,
+              dataUrl: reader.result as string,
+              mimeType: file.type,
+              fileName: file.name,
+            });
+          };
+          reader.readAsDataURL(file);
+        });
+      })
+    );
+
+    setAttachedFiles((prev) => [...prev, ...newFiles]);
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, []);
+
+  const removeFile = useCallback((id: string) => {
+    setAttachedFiles((prev) => prev.filter((f) => f.id !== id));
+  }, []);
+
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith('image/')) {
+      return Image;
+    }
+    return File;
+  };
+
+  const isImageFile = (mimeType: string) => {
+    return mimeType.startsWith('image/');
+  };
+
   // ── Send message ────────────────────────────────────────────────────────
 
   const handleSend = useCallback(async () => {
     const text = input.trim();
-    if (!text || isRunning || !connected) return;
+    if ((!text && attachedFiles.length === 0) || isRunning || !connected) return;
+
+    // Prepare file attachments
+    const files: FileAttachment[] = attachedFiles.map((f) => ({
+      id: f.id,
+      mimeType: f.mimeType,
+      fileName: f.fileName,
+      dataUrl: f.dataUrl,
+    }));
 
     setInput('');
+    setAttachedFiles([]); // Clear files after sending
     setIsRunning(true);
     setConnectionError(null);
     setActiveQuestion(null);
@@ -1438,12 +1516,13 @@ export function SkillExecutor({ skill, onClose }: SkillExecutorProps) {
       await opencode.sendMessage(sid, text, callbacks, {
         model: selectedModel ?? undefined,
         system: systemPrompt,
+        files: files.length > 0 ? files : undefined,
       });
     } finally {
       polling = false;
       window.clearInterval(pollTimer);
     }
-  }, [input, isRunning, connected, currentSessionId, createNewSession, selectedModel, skill.id, skill.name, skill.description, skillInstructions, skill.config.systemPrompt]);
+  }, [input, attachedFiles, isRunning, connected, currentSessionId, createNewSession, selectedModel, skill.id, skill.name, skill.description, skillInstructions, skill.config.systemPrompt]);
 
   // ── Abort ───────────────────────────────────────────────────────────────
 
@@ -2083,6 +2162,52 @@ export function SkillExecutor({ skill, onClose }: SkillExecutorProps) {
             {/* ── Input area ─────────────────────────────────────────── */}
             <div className="px-4 py-3 border-t border-zinc-700/50 bg-zinc-800/30 shrink-0">
               <div className="relative max-w-4xl mx-auto">
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileSelect}
+                  accept="image/*,.pdf,.txt,.md,.json,.csv,.doc,.docx"
+                  aria-label="Attach files"
+                />
+
+                {/* File attachments preview */}
+                {attachedFiles.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    {attachedFiles.map((file) => {
+                      const FileIcon = getFileIcon(file.mimeType);
+                      return (
+                        <div
+                          key={file.id}
+                          className="group relative flex items-center gap-2 px-3 py-2 bg-zinc-800 border border-zinc-600 rounded-lg"
+                        >
+                          {isImageFile(file.mimeType) ? (
+                            <img
+                              src={file.dataUrl}
+                              alt={file.fileName}
+                              className="w-8 h-8 object-cover rounded"
+                            />
+                          ) : (
+                            <FileIcon className="w-4 h-4 text-zinc-400" />
+                          )}
+                          <span className="text-xs text-zinc-300 max-w-[150px] truncate">
+                            {file.fileName}
+                          </span>
+                          <button
+                            onClick={() => removeFile(file.id)}
+                            className="ml-1 p-1 rounded hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer min-w-[20px] min-h-[20px] flex items-center justify-center"
+                            aria-label={`Remove ${file.fileName}`}
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -2099,6 +2224,19 @@ export function SkillExecutor({ skill, onClose }: SkillExecutorProps) {
                   aria-label="Message input"
                 />
                 <div className="absolute right-2 bottom-2 flex items-center gap-1">
+                  {/* File attachment button */}
+                  {!isRunning && (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={!connected}
+                      className="p-2.5 bg-zinc-700 text-zinc-300 rounded-lg hover:bg-zinc-600
+                        disabled:opacity-40 disabled:hover:bg-zinc-700 disabled:cursor-not-allowed transition-colors duration-200 cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-zinc-500/50"
+                      title="Attach files"
+                      aria-label="Attach files"
+                    >
+                      <Paperclip className="w-4 h-4" />
+                    </button>
+                  )}
                   {isRunning ? (
                     <button
                       onClick={handleAbort}
@@ -2111,7 +2249,7 @@ export function SkillExecutor({ skill, onClose }: SkillExecutorProps) {
                   ) : (
                     <button
                       onClick={handleSend}
-                      disabled={!input.trim() || !connected}
+                      disabled={(!input.trim() && attachedFiles.length === 0) || !connected}
                       className="p-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-500
                         disabled:opacity-40 disabled:hover:bg-blue-600 disabled:cursor-not-allowed transition-colors duration-200 cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:focus:ring-0"
                       title="Send (Enter)"

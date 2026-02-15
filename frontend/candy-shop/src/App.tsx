@@ -140,13 +140,12 @@ function HomePage({
     document.getElementById('categories-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Normal Mode (卡片式设计)
+  // Normal Mode
   if (mode === 'normal') {
     return (
       <NormalLayout
         onOpenAuth={onOpenAuth}
         onOpenCart={onOpenCart}
-        user={user}
         cartCount={cart.size}
       >
         <NormalHero onOpenDocs={onOpenDocs} />
@@ -154,7 +153,6 @@ function HomePage({
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           categoryFilter={categoryFilter}
-          setCategoryFilter={setCategoryFilter}
           cart={cart}
           onToggleCart={onToggleCart}
           onRunSkill={onRunSkill}
@@ -163,7 +161,7 @@ function HomePage({
     );
   }
 
-  // Pro Mode (原始设计)
+  // Pro Mode
   return (
     <Layout
       onOpenAuth={onOpenAuth}
@@ -448,8 +446,8 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter basename={import.meta.env.BASE_URL}>
-        <LanguageProvider>
-          <VersionModeProvider>
+        <VersionModeProvider>
+          <LanguageProvider>
             <AppContent />
             <Toaster
               position="bottom-right"
@@ -462,8 +460,8 @@ function App() {
                 },
               }}
             />
-          </VersionModeProvider>
-        </LanguageProvider>
+          </LanguageProvider>
+        </VersionModeProvider>
       </BrowserRouter>
     </ErrorBoundary>
   );
